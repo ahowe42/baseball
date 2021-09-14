@@ -1,1 +1,4 @@
-
+*.html
+*.bak
+.ipynb_checkpoints
+.db
