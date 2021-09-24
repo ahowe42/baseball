@@ -316,7 +316,7 @@ def OP_MateSelect(popFitness, optimGoal, meth):
     return parents
 
 
-def RunGP(params, data, objective, nodeMeta, verbose=False, randSeed=None):
+def RunGP(params, data, objective, nodeMeta, seedTrees=[], verbose=False, randSeed=None):
     '''
     Run the GP algorithm for a specified dataset. Parameters for the objective
     function must be passed, along with their names in the objective. While
@@ -353,6 +353,7 @@ def RunGP(params, data, objective, nodeMeta, verbose=False, randSeed=None):
     :param nodeMeta: dictionary holding the a tuple of a list of the node values
         allowed, the number of node values allowed, and node weight for random
         selection; keys are node types of 'op', 'feat', and 'const'
+    :param seedTrees: optional list of tree objects to seed the initial population
     :param verbose: optional (default = false) flag to print extra info
     :param randSeed: optional (default = none) seed for randomizer; if not passed,
         this will be generated and printed
@@ -404,17 +405,18 @@ def RunGP(params, data, objective, nodeMeta, verbose=False, randSeed=None):
         randSeed = int(str(time.time()).split('.')[1])
         print('Random Seed = %d'%randSeed)
     np.random.seed(randSeed)
-    
+        
     # display parameters
     dispLine = '#'*42
     print('%s\nGP Started on %s\n%s'%(dispLine, stt.isoformat(), dispLine))
     print('Data: %s(n=%d, p=%d)'%(dataName, n, p))
     print('Random Seed: %d'%randSeed)
-    print('Maximum # Generations: %0.0f\nMininum # of Generations: %0.0f\nConvergence Criteria: %0.8f'%(numGens,noChangeTerm,convgCrit))
+    print('Maximum # Generations: %d\nMininum # of Generations: %d\nConvergence Criteria: %0.8f'%(numGens,noChangeTerm,convgCrit))
     if populSize % 2 == 1:
         populSize += 1
         print('!!Population Size Increased By 1 to be Even!!')
-    print('Population Size: %0.0f'%populSize)
+    print('Population Size: %d'%populSize)
+    print('Initial Population Seeded with %d Trees'%len(seedTrees))
     print('Mutation Rate: %0.2f\nPrune Rate: %0.2f\nCrossover Rate: %0.2f\nSimplification Rate: %0.2f'\
           %(probMutate, probPrune, probXover, probSimp))
     print('Mating Method: %s'%['SORTED','ROULETTE'][mateType - 1])
@@ -429,8 +431,13 @@ def RunGP(params, data, objective, nodeMeta, verbose=False, randSeed=None):
     
     # randomly initialize the population of trees
     population = np.array([None]*populSize)
-    for indx in range(populSize):
+    for indx in range(populSize-len(seedTrees)):
         population[indx] = BuildTree(maxDepth, nodeMeta, True)
+    # add the seed trees
+    for indx in range(-1*len(seedTrees), 0, 1):
+        population[indx] = seedTrees[indx]
+        if verbose:
+            print('Seeded Initial Population with \n%s'%population[indx])
     # tree simplification
     population = OP_Simplify(population, probSimp)
     # talk
