@@ -568,7 +568,7 @@ def RunGP(params, data, objective, nodeMeta, seedTrees=[], verbose=False, randSe
     # build traces
     gens = len(genBest)
     xs = list(range(gens))
-    fig.add_trace(go.Scatter(x=xs, y=genScores[:,0], mode='markers+lines', name='Best Score', text=['%s = %0.3f'%(tree.function, score) for (tree, score) in zip(genBest, genScores[:,0])]), 1, 1)
+    fig.add_trace(go.Scatter(x=xs, y=genScores[:,0], mode='markers+lines', name='Best Score', text=['%s = %0.5f'%(tree.function, score) for (tree, score) in zip(genBest, genScores[:,0])]), 1, 1)
     fig.add_trace(go.Scatter(x=xs, y=genScores[:,1], mode='markers+lines', name='Average Score'), 2, 1)
     fig.add_trace(go.Scatter(x=xs, y=[len(tree.function) for tree in genBest], mode='markers+lines', name='Solution Length'), 3, 1)
     # annotate the best solution
