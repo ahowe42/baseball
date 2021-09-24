@@ -572,13 +572,13 @@ def RunGP(params, data, objective, nodeMeta, seedTrees=[], verbose=False, randSe
     fig.add_trace(go.Scatter(x=xs, y=genScores[:,1], mode='markers+lines', name='Average Score'), 2, 1)
     fig.add_trace(go.Scatter(x=xs, y=[len(tree.function) for tree in genBest], mode='markers+lines', name='Solution Length'), 3, 1)
     # annotate the best solution
-    bestAnn = dict(x=gens-1, y=np.min(genScores[:,0]), xref='x1', yref='y1', text='%s = %0.3f'%(bestTree.function, bestScore),
+    bestAnn = dict(x=gens-1, y=np.min(genScores[:,0]), xref='x1', yref='y1', text='%s = %0.5f'%(bestTree.function, bestScore),
                    showarrow=True, bordercolor="#c7c7c7", borderwidth=2, borderpad=4, bgcolor="#6d72f1", opacity=0.8,
                    font={'color':'#ffffff'}, align="center", arrowhead=2, arrowsize=1, arrowwidth=2, arrowcolor="#636363")
     # update layout
     anns = list(fig['layout']['annotations'])
     anns.append(bestAnn)    
-    fig.update_layout(title='GP Progress Resuls by Generation (%s, %s, %s)'%(dataName, objFunc, tstamp), annotations=anns)
+    fig.update_layout(title='GP Progress Resuls by Generation (%s, %s, %s)'%(dataName, objStr, tstamp), annotations=anns)
     fig['layout']['xaxis3'].update(title='Generation')
     if plotFlag:
         plyoff.plot(fig, filename='../output/GPProgress_%s_%s_%s.html'%(tstamp, re.sub('[^0-9A-Za-z_]', '_', dataName), objFunc), auto_open=True, include_mathjax='cdn')
