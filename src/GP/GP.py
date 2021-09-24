@@ -397,6 +397,7 @@ def RunGP(params, data, objective, nodeMeta, verbose=False, randSeed=None):
     objFunc = objective['function']
     objArgs = objective['arguments'] 
     objArgs['data'] = data
+    objStr = '%s(%s)'%(objFunc, ', '.join(['%s=%r'%(key, val) for (key, val) in objArgs.items() if key not in ['data', 'tree']]))
     
     # set the random state
     if randSeed is None:
@@ -423,7 +424,7 @@ def RunGP(params, data, objective, nodeMeta, verbose=False, randSeed=None):
         print('Objective: MAXIMIZE')
     else:
         print('Objective: MINIMIZE')
-    print('Objective Function: %s(%s)'%(objFunc, objArgs.keys()))
+    print('Objective Function: %s'%objStr)
     print(dispLine)
     
     # randomly initialize the population of trees
