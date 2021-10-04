@@ -1,4 +1,4 @@
-CREATE VIEW NLALRegularSeasonStats AS
+CREATE VIEW NLALRegularSeasonStats_byPosition AS
     SELECT PLA._yearID,
            TEM._name AS TEAM,
            PPL._nameFirst || ' ' || PPL._nameLast AS Player,
