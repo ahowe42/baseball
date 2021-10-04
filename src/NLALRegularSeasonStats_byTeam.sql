@@ -41,7 +41,7 @@ CREATE VIEW NLALRegularSeasonStats_byTeam AS
            sum(P_Walk) AS P_Walk,
            sum(P_StrikeOut) AS P_StrikeOut,
            sum(P_OppBattAvg) AS P_OppBattAvg,
-           sum(P_EarnedRunAvg) AS P_EarnedRunAvg,
+           average(P_EarnedRunAvg) AS P_EarnedRunAvg,
            sum(P_IntentWalk) AS P_IntentWalk,
            sum(P_WildPitch) AS P_WildPitch,
            sum(P_HitBatter) AS P_HitBatter,
