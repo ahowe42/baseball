@@ -1,0 +1,75 @@
+CREATE VIEW NLALRegularSeasonTeamStatsRanks AS
+    SELECT Rank._yearID,
+           Rank._lgID,
+           Rank._divID,
+           Rank._teamID,
+           Stats.Team,
+           Rank._Rank,
+           Rank._DivWin,
+           Rank._LGWin,
+           Rank._G,
+           Rank._W,
+           Rank._L,
+           Rank.WinPerc,
+           Rank.WinLosPerc,
+           Stats.F_Putout,
+           Stats.F_Assist,
+           Stats.F_Error,
+           Stats.F_DoublePlay,
+           Stats.F_CatcherPassedBall,
+           Stats.F_CatcherWildPitch,
+           Stats.F_CatcherOppStolenBase,
+           Stats.F_CatcherOppCaughtStealing,
+           Stats.F_ZoneRating,
+           Stats.B_AtBats,
+           Stats.B_Run,
+           Stats.B_Hit,
+           Stats.B_Double,
+           Stats.B_Triple,
+           Stats.B_Homer,
+           Stats.B_RBI,
+           Stats.B_StolenBase,
+           Stats.B_CaughtStealing,
+           Stats.B_Walk,
+           Stats.B_StrikeOuts,
+           Stats.B_IntentWalk,
+           Stats.B_HitbyPitch,
+           Stats.B_SacrificeHit,
+           Stats.B_SacrificeFly,
+           Stats.B_GroundDoublePlay,
+           Stats.P_Win,
+           Stats.P_Loss,
+           Stats.P_Game,
+           Stats.P_GameStarted,
+           Stats.P_CompleteGame,
+           Stats.P_Shutout,
+           Stats.P_Save,
+           Stats.P_OutsPitched,
+           Stats.P_Hits,
+           Stats.P_EarnedRun,
+           Stats.P_HomeRun,
+           Stats.P_Walk,
+           Stats.P_StrikeOut,
+           Stats.P_OppBattAvg,
+           Stats.P_EarnedRunAvg,
+           Stats.P_IntentWalk,
+           Stats.P_WildPitch,
+           Stats.P_HitBatter,
+           Stats.P_Balk,
+           Stats.P_BatterFaced,
+           Stats.P_GameFinished,
+           Stats.P_RunAllowed,
+           Stats.P_OppSacrificeHit,
+           Stats.P_OppSacrificeFly
+      FROM (
+               SELECT *
+                 FROM NLALRegularSeasonStats_byTeam
+           )
+           AS Stats
+           INNER JOIN
+           (
+               SELECT *
+                 FROM NLALTeamsRanks
+           )
+           AS Rank ON Stats._yearID = Rank._yearID AND 
+                      Stats._teamID = Rank._teamID;
