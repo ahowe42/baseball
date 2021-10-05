@@ -131,14 +131,18 @@ def pw(a, b):
         elif lnb == 0:
             b = np.ones(a.shape)*b
             lnb = lna
-            
+    
     # need to specially handle 0 ^ (negative)
     if (lna == 0) & (lnb == 0):
         # both scalars
         if (a == 0) & (b < 0):
             res = np.nan
         else:
-            res = np.nan_to_num(a**b, posinf=np.nan, neginf=np.nan)
+            try:
+                res = np.nan_to_num(a**b, posinf=np.nan, neginf=np.nan)
+            except OverflowError:
+                # unsure why this is needed, as it should just to to np.inf?
+                res = np.nan
     elif (lna > 0) & (lnb > 0):
         # both iterables
         bads = (a==0) & (b<0)
@@ -149,7 +153,11 @@ def pw(a, b):
             res[bads] = np.nan
             # compute for the goods
             goods = np.logical_not(bads)
-            res[goods] = np.nan_to_num(a[goods]**b[goods], posinf=np.nan, neginf=np.nan)
+            try:
+                res[goods] = np.nan_to_num(a[goods]**b[goods], posinf=np.nan, neginf=np.nan)
+            except OverflowError:
+                # not sure how to find what caused this, so just set all to nan
+                res[goods] = np.nan
         else:
             res = np.nan_to_num(a**b, posinf=np.nan, neginf=np.nan)
         
