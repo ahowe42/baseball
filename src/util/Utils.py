@@ -195,7 +195,7 @@ def ResultsPlots(data, sequenceCol, responseCol, predCol, resdCol, colorCol, ove
     fitlin = LinearRegression(n_jobs=-1)
     fitlin.fit(X=actual, y=data[predCol])
     actpred = fitlin.predict(X=lindat)
-    r2 = fitlin.score(X=actual, y=data[predCol])
+    r2 = np.corrcoef(actual.squeeze(), data[predCol].values)[0][1]
     # create the trace and annotation
     r2trc = go.Scatter(x=lindat.squeeze(), y=actpred, mode='lines', name='fit', line={'color':'black','width':1}, showlegend=False)
     r2ann = dict(x=lindat[5][0], y=actpred[5], xref='x1', yref='y1', text='$\\rho=%0.3f$'%(r2), showarrow=False, bgcolor='#ffffff')
