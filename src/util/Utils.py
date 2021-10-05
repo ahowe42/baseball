@@ -67,7 +67,7 @@ def sb(a, b):
 
 # multiplication
 def ml(a, b):
-    return np.nan_to_num(a * b, posinf=np.nan)
+    return np.nan_to_num(a * b, posinf=np.nan, neginf=np.nan)
 
 
 # division
@@ -96,13 +96,64 @@ def dv(a, b):
         elif lnb < lna:
             # b is scalar, a is not
             b = [b]*lna
-        res = np.nan_to_num(a / b, posinf=np.nan)
+        res = np.nan_to_num(a / b, posinf=np.nan, neginf=np.nan)
     return res
 
 
 # power
 def pw(a, b):
-    return np.nan_to_num(a ** np.abs(b), posinf=np.nan)
+    # determine if either a or b is an iterable; if so, need to ensure
+    # inputs are floats
+    try:
+        lna = len(a)
+    except TypeError:
+        # not an iterable
+        lna = 0
+        a = float(a)
+    else:
+        # an iterable, so cast
+        a = a.astype('float')
+    try:
+        lnb = len(b)
+    except TypeError:
+        # not an iterable
+        lnb = 0
+        b = float(b)
+    else:
+        # an iterable, so cast
+        b = b.astype('float')
+        
+    # if either is an iterable, the rest of this function is simpler if both are (using xor)
+    if (lna > 0) ^ (lnb > 0):
+        if lna == 0:
+            a = np.ones(b.shape)*a
+            lna = lnb
+        elif lnb == 0:
+            b = np.ones(a.shape)*b
+            lnb = lna
+            
+    # need to specially handle 0 ^ (negative)
+    if (lna == 0) & (lnb == 0):
+        # both scalars
+        if (a == 0) & (b < 0):
+            res = np.nan
+        else:
+            res = np.nan_to_num(a**b, posinf=np.nan, neginf=np.nan)
+    elif (lna > 0) & (lnb > 0):
+        # both iterables
+        bads = (a==0) & (b<0)
+        if any(bads):
+            # initialize results
+            res = np.zeros(a.shape)
+            # fill partly with nans
+            res[bads] = np.nan
+            # compute for the goods
+            goods = np.logical_not(bads)
+            res[goods] = np.nan_to_num(a[goods]**b[goods], posinf=np.nan, neginf=np.nan)
+        else:
+            res = np.nan_to_num(a**b, posinf=np.nan, neginf=np.nan)
+        
+    return res
 
 
 # minimum
