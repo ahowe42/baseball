@@ -14,7 +14,7 @@ from util.Utils import *
 
     
     
-def TreeRegressionMetric(data, tree, metric='RMSE', optimGoal=-1):
+def TreeRegressionMetric(data, tree, feats, metric='RMSE', optimGoal=-1):
     '''
     For a given dataset and tree, evalute the tree on the
     dataset, and assess the linear relationship between the
@@ -24,6 +24,7 @@ def TreeRegressionMetric(data, tree, metric='RMSE', optimGoal=-1):
     :param data: dataframe of data; columns should include
         'target', and 'X0', 'X1', ...
     :param tree: evaluateable string function of a tree
+    :param feats: list of feature column names
     :param metric: optional (default='RMSE') metric to compute
     :param optimGoal: flag indicating what to do with the metric
         (1 = maximize, -1 = minimize); this is only used to put a sign
@@ -34,8 +35,13 @@ def TreeRegressionMetric(data, tree, metric='RMSE', optimGoal=-1):
     :return preds: array-like of predictions using linear regression model
     :return linReg: fit linear regression estimator
     '''
+    
+    # append the dataframe to the column name
+    for feat in feats:
+        tree = tree.replace(feat, 'data.'+feat)
+        
     # evaluate the tree function
-    treeRes = eval(tree.replace('X', 'data.X'))
+    treeRes = eval(tree)
     if type(treeRes) is pd.Series:
         # if the tree just encodes a series, have to get values
         treeRes = treeRes.values
@@ -74,7 +80,7 @@ def TreeRegressionMetric(data, tree, metric='RMSE', optimGoal=-1):
     return (metricVal, preds, linReg)
 
 
-def TreeMetric(data, tree, metric='RMSE', optimGoal=-1):
+def TreeMetric(data, tree, feats, metric='RMSE', optimGoal=-1):
     '''
     For a given dataset and tree, evalute the tree on the
     dataset, and compute a specified metric between the target
@@ -84,6 +90,7 @@ def TreeMetric(data, tree, metric='RMSE', optimGoal=-1):
     :param data: dataframe of data; columns should include
         'target', and 'X0', 'X1', ...
     :param tree: evaluateable string function of a tree
+    :param feats: list of feature column names
     :param metric: optional (default='RMSE') metric to compute
     :param optimGoal: flag indicating what to do with the metric
         (1 = maximize, -1 = minimize); this is only used to put a sign
@@ -93,8 +100,13 @@ def TreeMetric(data, tree, metric='RMSE', optimGoal=-1):
         the target data column; if an error occurs np.inf is returned
     :return treeRes: array-like of tree results
     '''
+    
+    # append the dataframe to the column name
+    for feat in feats:
+        tree = tree.replace(feat, 'data.'+feat)
+        
     # evaluate the tree function
-    treeRes = eval(tree.replace('X', 'data.X'))
+    treeRes = eval(tree)
     if type(treeRes) is pd.Series:
         # if the tree just encodes a series, have to get values
         treeRes = treeRes.values

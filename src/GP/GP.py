@@ -398,7 +398,8 @@ def RunGP(params, data, objective, nodeMeta, seedTrees=[], verbose=False, randSe
     objFunc = objective['function']
     objArgs = objective['arguments'] 
     objArgs['data'] = data
-    objStr = '%s(%s)'%(objFunc, ', '.join(['%s=%r'%(key, val) for (key, val) in objArgs.items() if key not in ['data', 'tree']]))
+    objStr = '%s(%s)'%(objFunc, ', '.join(['%s=%r'%(key, val) for (key, val) in objArgs.items()\
+        if key not in ['data', 'tree', 'feats']]))
     
     # set the random state
     if randSeed is None:
@@ -607,14 +608,3 @@ def RunGP(params, data, objective, nodeMeta, seedTrees=[], verbose=False, randSe
     print('GP: Started on %s\n\tFinished on %s\n\tElapsed Time = %0.3f(m)'%(stt.isoformat(), stp.isoformat(), (stpT-sttT)/60))
     
     return bestTree, bestScore, genBest, genScores, randSeed, tstamp, fig
-    
-    
-# template objective function set with args dict
-#def objFunc(data, tree):
-#    '''
-#    template objective function
-#    '''
-#    
-#    return (0,)
-#
-#objective = {'function':'objFunc', 'arguments':{'data':None, 'tree':None}}
