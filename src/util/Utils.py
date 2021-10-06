@@ -143,9 +143,12 @@ def pw(a, b):
             except OverflowError:
                 # unsure why this is needed, as it should just to to np.inf?
                 res = np.nan
+        # handle complex results
+        if np.iscomplex(res):
+            res = np.nan
     elif (lna > 0) & (lnb > 0):
         # both iterables
-        bads = (a==0) & (b<0)
+        bads = (a == 0) & (b < 0)
         if any(bads):
             # initialize results
             res = np.zeros(a.shape)
@@ -160,6 +163,10 @@ def pw(a, b):
                 res[goods] = np.nan
         else:
             res = np.nan_to_num(a**b, posinf=np.nan, neginf=np.nan)
+        # handle complex results
+        bads = np.iscomplex(res)
+        if any(bads):
+            res[bads] = np.nan
         
     return res
 
