@@ -14,17 +14,18 @@ from util.Utils import *
 
 
 
-def TreeRegressionMetric(data, tree, feats, metric='RMSE', optimGoal=-1):
+def TreeRegressionMetric(data, tree, feats, estim=None, metric='RMSE', optimGoal=-1):
     '''
     For a given dataset and tree, evalute the tree on the
-    dataset, and assess the linear relationship between the
-    results and the target in the data, returning the specified
-    metric. Metric choices include 'RMSE', 'MSE', 'MAPE', 'R^2',
-    or you can pass in a callable with 'y_true' and 'y_pred' arguments.
+    dataset, and assess the relationship between the results and the
+    target in the data, returning the specified metric. Metric choices
+    include 'RMSE', 'MSE', 'MAPE', 'R^2', or you can pass in a callable
+    with 'y_true' and 'y_pred' arguments.
     :param data: dataframe of data; columns should include
         'target', and 'X0', 'X1', ...
     :param tree: evaluateable string function of a tree
     :param feats: list of feature column names
+    :param estim: optional (default = linear Regression) model estimator
     :param metric: optional (default='RMSE') metric to compute
     :param optimGoal: flag indicating what to do with the metric
         (1 = maximize, -1 = minimize); this is only used to put a sign
@@ -33,8 +34,12 @@ def TreeRegressionMetric(data, tree, feats, metric='RMSE', optimGoal=-1):
         specified metric from a linear fit between the tree results
         and the target data column; if an error occurs np.inf is returned
     :return preds: array-like of predictions using linear regression model
-    :return linReg: fit linear regression estimator
+    :return estim: fit linear regression estimator
     '''
+    
+    # set the estimator if needed
+    if estim is None:
+        estim = LinearRegression(fit_intercept=False)
     
     # append the dataframe to the column name
     for feat in feats:
@@ -51,11 +56,10 @@ def TreeRegressionMetric(data, tree, feats, metric='RMSE', optimGoal=-1):
         # if the tree just encodes a constant value, make an array
         treeRes = np.array([treeRes]*len(data)).reshape(-1, 1)
     
-    # regression between target and the tree results
+    # model between target and the tree results
     try:
-        linReg = LinearRegression(fit_intercept=False)
-        linReg.fit(X=treeRes, y=data['target'].values)
-        preds = linReg.predict(X=treeRes)
+        estim.fit(X=treeRes, y=data['target'].values)
+        preds = estim.predict(X=treeRes)
         # compute the metric
         if metric == 'RMSE':
             metricVal = mean_squared_error(y_true=data['target'].values, y_pred=preds, squared=False)
@@ -77,10 +81,10 @@ def TreeRegressionMetric(data, tree, feats, metric='RMSE', optimGoal=-1):
         preds = [np.nan]*len(data)
         metricVal = np.inf*optimGoal*-1
     
-    return (metricVal, preds, linReg)
+    return (metricVal, preds, estim)
 
 
-def TreeClassificationMetric(data, tree, feats, metric='accuracy', optimGoal=-1):
+def TreeClassificationMetric(data, tree, feats, estim=None, metric='accuracy', optimGoal=-1):
     '''
     For a given dataset and tree, evalute the tree on the
     dataset, and assess the classification relationship between
@@ -91,6 +95,7 @@ def TreeClassificationMetric(data, tree, feats, metric='accuracy', optimGoal=-1)
         'target', and 'X0', 'X1', ...
     :param tree: evaluateable string function of a tree
     :param feats: list of feature column names
+    :param estim: optional (default = Decision Tree) model estimator
     :param metric: optional (default='accuracy') metric to compute
     :param optimGoal: flag indicating what to do with the metric
         (1 = maximize, -1 = minimize); this is only used to put a sign
@@ -99,8 +104,12 @@ def TreeClassificationMetric(data, tree, feats, metric='accuracy', optimGoal=-1)
         specified metric from a linear fit between the tree results
         and the target data column; if an error occurs np.inf is returned
     :return preds: array-like of predictions using linear regression model
-    :return linReg: fit decision tree estimator
+    :return estim: fit decision tree estimator
     '''
+    
+    # set the estimator if needed
+    if estim is None:
+        estim = DecisionTreeClassifier(max_depth=5, min_samples_leaf=20)
     
     # append the dataframe to the column name
     for feat in feats:
@@ -117,11 +126,10 @@ def TreeClassificationMetric(data, tree, feats, metric='accuracy', optimGoal=-1)
         # if the tree just encodes a constant value, make an array
         treeRes = np.array([treeRes]*len(data)).reshape(-1, 1)
     
-    # regression between target and the tree results
+    # model between target and the tree results
     try:
-        decTree = DecisionTreeClassifier()
-        decTree.fit(X=treeRes, y=data['target'].values)
-        preds = decTree.predict(X=treeRes)
+        estim.fit(X=treeRes, y=data['target'].values)
+        preds = estim.predict(X=treeRes)
         # compute the metric
         if metric == 'accuracy':
             metricVal = accuracy_score(y_true=data['target'].values, y_pred=preds)
@@ -141,7 +149,7 @@ def TreeClassificationMetric(data, tree, feats, metric='accuracy', optimGoal=-1)
         preds = [np.nan]*len(data)
         metricVal = np.inf*optimGoal*-1
     
-    return (metricVal, preds, decTree)
+    return (metricVal, preds, estim)
 
 
 def TreeMetric(data, tree, feats, metric='RMSE', optimGoal=-1):
