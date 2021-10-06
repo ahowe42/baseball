@@ -303,3 +303,111 @@ def ResultsPlots(data, sequenceCol, responseCol, predCol, resdCol, colorCol, ove
     figRes['layout']['annotations'] = anns
     
     return figRes
+
+
+def correlationsPlot(rhoYourBoat, plotTitl='Feature Correlations Plot', trcLims=(0.0, 1.0), tweaks=(20, None, None, 1.1)):
+    '''
+    This creates and returns a bubble plot visualization of a correlation matrix. The
+    sizes of the bubbles are proportional to the absolute magnitude of the correlations.
+    Positive correlations are only plotted in the upper triangle, with colors ranging
+    from green (0) to red (+1). Negative correlations are plotted in the lower triangle,
+    with colors ranging from green (0) to blue (-1). Perfect correlations are indicated
+    with black bubbles.
+    :param rhoYourBoat: dataframe of correlation matrix, probably created with pd.DataFrame.corr()
+    :param plotTitl: optional (default='Feature Correlations Plot') plot title
+    :param trcLims: (default=(0.0,1.0)) = ordered tuple of "buckets" in which to place absolute correlations for
+        plotting traces; must include at least 0 and 1
+    :param tweaks (default=(20,None,None,1.1)): tuple of position & size tweaking values for plotly; maximum size of
+        bubbles, plot width, plot height, y position of legend
+    :return fig: plotly correlation plot figure
+    '''
+
+    # set the granulatrity of the colors
+    n = 101  # must be odd so in the middle at correlation = 0 is just green
+
+    # number features
+    p = len(rhoYourBoat.columns)
+    ps = list(range(p))
+
+    # positive correltions are red>green
+    scl = np.linspace(1.0, 0.0, n)
+    redsP = np.round(255 * scl)
+    grnsP = 255 - redsP
+    blusP = [0.0] * n
+
+    # negative correlations are blue>green
+    scl = scl[:-1]
+    blusN = np.round(255 * scl)
+    grnsN = 255 - blusN
+    redsN = [0.0] * n
+
+    # adding 2 more to make the endpoints for perfect correlations
+    scl = np.linspace(-1.0, 1.0, 2 * n - 1 + 2)
+
+    # make the colormap - perfectly uncorrelated and perfectly correlated are black
+    rgb = ['rgb(0,0,0)']
+    rgb.extend(['rgb(%d,%d,%d)' % (r, g, b) for r, g, b in
+                zip(np.r_[redsN, redsP[::-1]], np.r_[grnsN, grnsP[::-1]], np.r_[blusN, blusP[::-1]])])
+    rgb.append('rgb(0,0,0)')
+
+    # now map correlations to colors - unhappy that I have to do this double loop :-(
+    vals = rhoYourBoat.values
+    cols = np.zeros(shape=vals.shape, dtype=object)
+    for i in ps:
+        for j in ps:
+            v = vals[i, j]
+            mni = np.argmin(np.abs(v - scl))
+            mnv = scl[mni]
+            cols[i, j] = rgb[mni]
+            # print('%0.5f,%d,%0.5f,%s'%(v,mni,mnv,cols[i,j]))
+
+    # filter data so the upper triangle is (+) correlations and lower triangle is (-) correlations
+    y = np.tile(ps, (p, 1))
+    x = y.T
+    x = x.flatten()
+    y = y.flatten()
+    vals = vals.flatten()
+    cols = cols.flatten()
+    keepind = ((y > x) & (vals > 0)) | ((x > y) & (vals < 0))
+    x = x[keepind]
+    y = y[keepind]
+    vals = vals[keepind]
+    cols = cols[keepind]
+    absVals = np.abs(vals)
+
+    # set a minimum bubble size
+    minBub = 0.09 * tweaks[0]
+
+    # put together the figure - make multiple traces
+    trc = [go.Scatter(
+        {'x': ps, 'y': ps, 'mode': 'lines', 'line': {'color': 'black'}, 'showlegend': False, 'hoverinfo': 'skip'})]
+    for i, t in enumerate(trcLims):
+        # build the index for the traces
+        if i == 0:
+            continue
+        elif i == 1:
+            indx = (absVals <= t) & (absVals >= trcLims[0])
+            trcName = '$\\vert\\rho\\vert\\in[%0.2f,%0.2f]$' % (trcLims[0], t)
+        else:
+            indx = (absVals <= t) & (absVals > trcLims[i - 1])
+            trcName = '$\\vert\\rho\\vert\\in(%0.2f,%0.2f]$' % (trcLims[i - 1], t)
+        # create & add the trace
+        trc.append(go.Scatter({'x': x[indx], 'y': y[indx], 'mode': 'markers', 'text': ['%0.4f' % v for v in vals[indx]],
+                               'name': trcName, 'hoverinfo': 'x+y+text',
+                               'marker': {'color': cols[indx], 'line': {'color': cols[indx]},
+                                          'size': np.maximum(tweaks[0] * absVals[indx], minBub)}}))
+
+    # finalize the layout
+    lout = go.Layout({'title': plotTitl, 'legend': {'orientation': 'h', 'x': 0, 'y': tweaks[-1]},
+                      'xaxis': {'ticklen': 1, 'tickvals': ps, 'ticktext': rhoYourBoat.columns.values,
+                                'mirror': True, 'showgrid': False, 'range': [-1, p], 'linecolor': 'black',
+                                'linewidth': 0.5, 'zeroline': False, 'tickangle': 90},
+                      'yaxis': {'ticklen': 1, 'tickvals': ps, 'ticktext': rhoYourBoat.index.values,
+                                'mirror': True, 'showgrid': False, 'range': [-1, p], 'linecolor': 'black',
+                                'linewidth': 0.5, 'zeroline': False}})
+    if tweaks[1] is not None:
+        lout['width'] = tweaks[1]
+    if tweaks[2] is not None:
+        lout['height'] = tweaks[2]
+
+    return go.Figure(data=trc, layout=lout)
