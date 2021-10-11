@@ -29,6 +29,20 @@ class Node(object):
         self.right = None
         self.setStr('LR')
         
+    def __str__(self):
+        return '(%s) -> [%s, %s]'%(self.Str, self.leftStr, self.rightStr)
+    
+    def __repr__(self):
+        return self.__str__()
+    
+    def __del__(self):
+        # first delete the children
+        if self.left is not None:
+            self.left.__del__()
+        if self.right is not None:
+            self.right.__del__()
+        # I don't think anything else is needed?
+        
     def setNode(self, typ=None, val=None):
         '''
         Function to set / reset this Node's type and/or value.
@@ -41,9 +55,6 @@ class Node(object):
             self.value = val
         self.Str = '%s(%s)'%(self.type, self.value)
         
-    def __str__(self):
-        return '(%s) -> [%s, %s]'%(self.Str, self.leftStr, self.rightStr)
-    
     def setLeft(self, L):
         '''
         Set this Node's left child Node.
@@ -104,7 +115,11 @@ class Tree(object):
     
     def __repr__(self):
         return self.__str__()
-
+    
+    def __del__(self):
+        # delete the tree nodes
+        self.root.__del__()
+        
     @staticmethod
     def __RecTreeStruct(currNode, tree, leaves, currKey):
         '''
