@@ -51,7 +51,7 @@ CREATE VIEW NLALRegularSeasonStats_byTeam AS
            sum(P_RunAllowed) AS P_RunAllowed,
            sum(P_OppSacrificeHit) AS P_OppSacrificeHit,
            sum(P_OppSacrificeFly) AS P_OppSacrificeFly
-      FROM NLALRegularSeasonStats_byPlayer
+      FROM NLALRegularSeasonStats_byPlayerStintTeam
      GROUP BY _yearID,
               Team,
               _teamID;

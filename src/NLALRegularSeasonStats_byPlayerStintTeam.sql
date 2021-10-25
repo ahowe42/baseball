@@ -1,7 +1,10 @@
-CREATE VIEW NLALRegularSeasonStats_byPlayer AS
+CREATE VIEW NLALRegularSeasonStats_byPlayerStintTeam AS
     SELECT _yearID,
+           TEAM,
            Player,
            _playerID,
+           _teamID,
+           _stint,
            sum(F_Game) AS F_Game,
            sum(F_GameStarted) AS F_GameStarted,
            sum(F_OutPlayed) AS F_OutPlayed,
@@ -57,8 +60,11 @@ CREATE VIEW NLALRegularSeasonStats_byPlayer AS
            P_OppSacrificeFly
       FROM NLALRegularSeasonStats_byPosition
      GROUP BY _yearID,
+              TEAM,
               Player,
               _playerID,
+              _teamID,
+              _stint,
               B_Game,
               B_AtBats,
               B_Run,
