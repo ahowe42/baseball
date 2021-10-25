@@ -2,7 +2,7 @@ CREATE VIEW NLALRegularSeasonStats_byPlayer AS
     SELECT _yearID,
            Player,
            _playerID,
-           sum(F_Game) AS F_Game,
+           sum(F_GamePlayed) AS F_GamePlayed,
            sum(F_GameStarted) AS F_GameStarted,
            sum(F_OutPlayed) AS F_OutPlayed,
            sum(F_Putout) AS F_Putout,
