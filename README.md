@@ -8,7 +8,9 @@ This is where I will store and document my exploration into "sabermetrics" quant
 
 - [GPFeatureEngineering.ipynb](./notebooks/GPFeatureEngineering.ipynb): This Jupyter notebook demonstrates building functional trees and running a Genetic Programming algorithm on some data. In addition, the GP's use for feature engineering is demonstrated, by generating a good-fitting feature to some simulated data.
 
-- [GPBaseball.ipynb](./notebooks/GPBaseball.ipynb): This Jupyber notebook applies genetic programming to a problem with the baseball data.
+- [GPBaseball.ipynb](./notebooks/GPBaseball.ipynb): This Jupyber notebook applies genetic programming to a problem with the baseball data. We try to feature engineer a good stat that is a function of team stats for predicting season performance.
+
+- [GPBaseball_PrevYearStats.ipynb](./notebooks/GPBaseball_PrevYearStats.ipynb): This Jupyber notebook applies genetic programming to a problem with the baseball data. We try to feature engineer a good stat that is a function of team roster members' prior year stats for predicting season performance.
 
 ## View Queries
 The `src` folder holds several view creation queries to be applied to the sqlite database. Analysis of the data will be based on these views.
