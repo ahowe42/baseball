@@ -163,7 +163,9 @@ def TreeMetric(data, tree, feats, metric='RMSE', optimGoal=-1):
         'target', and 'X0', 'X1', ...
     :param tree: evaluateable string function of a tree
     :param feats: list of feature column names
-    :param metric: optional (default='RMSE') metric to compute
+    :param metric: optional (default='RMSE') metric to compute;
+    	if a callable is passed, and it's expecting the inputs to
+    	be ordinal, the predictions should be converted before passing
     :param optimGoal: flag indicating what to do with the metric
         (1 = maximize, -1 = minimize); this is only used to put a sign
         on a returned np.inf, in the case of an error
@@ -199,11 +201,11 @@ def TreeMetric(data, tree, feats, metric='RMSE', optimGoal=-1):
         elif metric == 'R^2':
             metricVal = r2_score(y_true=data['target'].values, y_pred=preds)
         elif metric == 'accuracy':
-            metricVal = accuracy_score(y_true=data['target'].values, y_pred=preds)
+            metricVal = accuracy_score(y_true=data['target'].values, y_pred=np.round(preds, 0))
         elif metric == 'F1':
-            metricVal = f1_score(y_true=data['target'].values, y_pred=preds)
+            metricVal = f1_score(y_true=data['target'].values, y_pred=np.round(preds, 0))
         elif metric == 'wF1':
-            metricVal = f1_score(y_true=data['target'].values, y_pred=preds, average='weighted')
+            metricVal = f1_score(y_true=data['target'].values, y_pred=np.round(preds, 0), average='weighted')
         elif not isinstance(metric, str):
             metricVal = metric(y_true=data['target'].values, y_pred=preds)
     except ValueError:
