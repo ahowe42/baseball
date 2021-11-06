@@ -193,28 +193,27 @@ def TreeMetric(data, tree, feats, metric='RMSE', optimGoal=-1):
     # compute the metric
     try:
         if metric == 'RMSE':
-            metricVal = mean_squared_error(y_true=data['target'].values, y_pred=preds, squared=False)
+            metricVal = mean_squared_error(y_true=data['target'].values, y_pred=treeRes, squared=False)
         elif metric == 'MSE':
-            metricVal = mean_squared_error(y_true=data['target'].values, y_pred=preds, squared=True)
+            metricVal = mean_squared_error(y_true=data['target'].values, y_pred=treeRes, squared=True)
         elif metric == 'MAPE':
-            metricVal = mean_absolute_percentage_error(y_true=data['target'].values, y_pred=preds)
+            metricVal = mean_absolute_percentage_error(y_true=data['target'].values, y_pred=treeRes)
         elif metric == 'R^2':
-            metricVal = r2_score(y_true=data['target'].values, y_pred=preds)
+            metricVal = r2_score(y_true=data['target'].values, y_pred=treeRes)
         elif metric == 'accuracy':
-            metricVal = accuracy_score(y_true=data['target'].values, y_pred=np.round(preds, 0))
+            metricVal = accuracy_score(y_true=data['target'].values, y_pred=np.round(treeRes, 0))
         elif metric == 'F1':
-            metricVal = f1_score(y_true=data['target'].values, y_pred=np.round(preds, 0))
+            metricVal = f1_score(y_true=data['target'].values, y_pred=np.round(treeRes, 0))
         elif metric == 'wF1':
-            metricVal = f1_score(y_true=data['target'].values, y_pred=np.round(preds, 0), average='weighted')
+            metricVal = f1_score(y_true=data['target'].values, y_pred=np.round(treeRes, 0), average='weighted')
         elif not isinstance(metric, str):
-            metricVal = metric(y_true=data['target'].values, y_pred=preds)
+            metricVal = metric(y_true=data['target'].values, y_pred=treeRes)
     except ValueError:
         # nans or infs in the tree res, so just pass out np.inf
-        metricVaL = np.inf*optimGoal*-1
+        metricVal = np.inf*optimGoal*-1
     except Exception as err:
         # don't know, but perhaps an error with the metric function
         print('Unkonwn error: %s'%err)
-        preds = [np.nan]*len(data)
         metricVal = np.inf*optimGoal*-1
     
-    return (metricVaL, treeRes)
+    return (metricVal, treeRes)
