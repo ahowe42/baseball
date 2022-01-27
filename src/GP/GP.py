@@ -299,7 +299,7 @@ def OP_MateSelect(popFitness, optimGoal, meth):
             parents = np.insert(parents, 0, stdIndex[0])
             populSize += 1
         # randomly resort then pair up
-        parents = np.reshape(parents[rnd.permutation(populSize)], (populSize/2, 2))
+        parents = np.reshape(parents[rnd.permutation(populSize)], (populSize//2, 2))
 
         # 20160225 JAH don't want an uneven population size (often from Elitism) to result in
         # such fast population growth, so randomly cull one mating pair, with frequency relative
